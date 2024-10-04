@@ -1,0 +1,42 @@
+.CardField {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    min-width: 90vw;
+    min-height: 40vh;
+    background-color: var(--main-bg-color);
+
+    border-radius: 10px;
+
+    margin: 30px;
+}
+
+.Title {
+    display: flex;
+    justify-content: center;
+
+    margin-top: 20px;
+
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.Content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 85vw;
+    height: 30vh;
+
+    margin-top: 15px;
+
+    background-color: white;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    overflow-x: auto;
+}

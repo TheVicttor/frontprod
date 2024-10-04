@@ -1,0 +1,14 @@
+.Footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 20vh;
+
+    background-color: var(--main-bg-color);
+}
+
+.uerj-logo {
+    max-width: 50%;
+    height: auto;
+}
