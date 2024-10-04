@@ -21,10 +21,10 @@ export default function Card(props) {
         <div className="CardField" style={{ maxHeight: "100%" }}>
             <div className="Title">{props.title}</div>
             <div className="Content">
-                {resultado[0]}
-                {resultado[1]}
-                {resultado[2]}
-                {resultado[3]}
+                <p>{resultado[0]}</p>
+                <p>{resultado[1]}</p>
+                <p>{resultado[2]}</p>
+                <p>{resultado[3]}</p>
             </div>
         </div>
     );
