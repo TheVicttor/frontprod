@@ -23,14 +23,35 @@ export default function Tensores() {
     const [riemann, setRiemann] = useState(null);
     const [ricci, setRicci] = useState(null);
     const [ricciScalar, setRicciScalar] = useState(null);
-    const [metricaSelecionada, setMetricaSelecionada] =
-        useState("Schwarzschild");
+    const [metricaSelecionada, setMetricaSelecionada] = useState("Schwarzschild");
+    const [loading, setLoading] = useState(true);
+
+    const Loading = () => {
+        const [dots, setDots] = useState("");
+    
+        useEffect(() => {
+            const interval = setInterval(() => {
+                setDots(prevDots => {
+                    if (prevDots.length < 3) {
+                        return prevDots + ".";
+                    } else {
+                        return "";
+                    }
+                });
+            }, 500);
+    
+            return () => clearInterval(interval);
+        }, []);
+    
+        return loading ? <h1 className="Loading">{dots}</h1> : <h1 className="Loading">Erro!</h1>;
+    };
 
     useEffect(() => {
         getMetricas();
     }, []);
 
     const getMetricas = () => {
+        setLoading(true)
         api.get(`${backendUrl}/metricas`)
             .then((response) => {
                 console.log(response.data);
@@ -38,6 +59,7 @@ export default function Tensores() {
             })
             .catch((error) => {
                 console.error(error);
+                setLoading(false)
             });
     };
 
@@ -142,11 +164,14 @@ export default function Tensores() {
 
     return (
         <>
-            <Metrica
-                onChange={handleMetricaChange}
-                options={metricas}
-                value={metricaSelecionada}
-            />
+            <div className="Selector">
+                <Metrica
+                    onChange={handleMetricaChange}
+                    options={metricas}
+                    value={metricaSelecionada}
+                />
+                {metricas.length ? null : <Loading />}
+            </div>
             <div className="Tensores">
                 <fieldset>
                     <legend>Escolha o que deseja calcular</legend>
