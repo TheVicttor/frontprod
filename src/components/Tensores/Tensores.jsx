@@ -8,7 +8,8 @@ import "./Tensores.css";
 // const backendUrl = import.meta.env.VITE_API_ENDPOINT ?? "http://localhost:8121";
 const backendUrl = window.location.hostname === "localhost"
   ? "http://localhost:8121" // URL para desenvolvimento local
-  : "https://cloudhub.iprj.uerj.br/projeto2-1"; // URL para produção
+  : "https://backprod.onrender.com";//"https://cloudhub.iprj.uerj.br/projeto2-1"; // URL para produção
+
 
 
 export default function Tensores() {

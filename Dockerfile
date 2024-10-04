@@ -25,7 +25,9 @@ COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80 
 
 # ENV VITE_API_ENDPOINT="http://cloudhub.iprj.uerj.br/projeto2-1/"
-ENV VITE_API_ENDPOINT="https://cloudhub.iprj.uerj.br/projeto2-1/"
+# ENV VITE_API_ENDPOINT="https://cloudhub.iprj.uerj.br/projeto2-1/"
+ENV VITE_API_ENDPOINT="https://backprod.onrender.com"
+
 
 # Comando para rodar o servidor web
 CMD ["nginx", "-g", "daemon off;"]
