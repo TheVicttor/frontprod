@@ -3,7 +3,7 @@ import "./Card.css";
 
 export default function Card(props) {
     function separarLinhasMatriz(matrizString) {
-        const linhas = []
+        var linhas = []
         // Remove os colchetes externos e espaços extras
         if (matrizString.startsWith('[')) {
 
