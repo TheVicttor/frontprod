@@ -21,10 +21,9 @@ export default function Card(props) {
         <div className="CardField" style={{ maxHeight: "100%" }}>
             <div className="Title">{props.title}</div>
             <div className="Content">
-                <p>{resultado[0]}</p>
-                <p>{resultado[1]}</p>
-                <p>{resultado[2]}</p>
-                <p>{resultado[3]}</p>
+                {resultado.map((elemento, index) => (
+                    <p key={index}>{elemento}</p>
+            ))}
             </div>
         </div>
     );
