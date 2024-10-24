@@ -5,18 +5,15 @@ import Metrica from "../Metric/Metrica";
 import "./Tensores.css";
 
 // URL do backend com o IP e a porta corretos
-// const backendUrl = import.meta.env.VITE_API_ENDPOINT ?? "http://localhost:8121";
 const backendUrl = window.location.hostname === "localhost"
-  ? "http://localhost:8121" // URL para desenvolvimento local
-  : "https://backprod.onrender.com";//"https://cloudhub.iprj.uerj.br/projeto2-1"; // URL para produção
-
-
+    ? "http://localhost:8121" // URL para desenvolvimento local
+    : "https://backprod.onrender.com"; // URL para produção
 
 export default function Tensores() {
     const [metricas, setMetricas] = useState([]);
     const [tensorDaMetricaChecked, setTensorDaMetricaChecked] = useState(false);
-    const [ricciChecked, setRicciChecked] = useState(false);
     const [riemannChecked, setRiemannChecked] = useState(false);
+    const [ricciChecked, setRicciChecked] = useState(false);
     const [ricciScalarChecked, setRicciScalarChecked] = useState(false);
     const [exibirCards, setExibirCards] = useState(false);
     const [tensorDaMetrica, setTensorDaMetrica] = useState(null);
@@ -25,10 +22,11 @@ export default function Tensores() {
     const [ricciScalar, setRicciScalar] = useState(null);
     const [metricaSelecionada, setMetricaSelecionada] = useState("Schwarzschild");
     const [loading, setLoading] = useState(true);
+    const [loadingCalculos, setLoadingCalculos] = useState(false);
 
     const Loading = () => {
         const [dots, setDots] = useState("");
-    
+
         useEffect(() => {
             const interval = setInterval(() => {
                 setDots(prevDots => {
@@ -39,19 +37,53 @@ export default function Tensores() {
                     }
                 });
             }, 500);
-    
+
             return () => clearInterval(interval);
         }, []);
-    
-        return loading ? <h1 className="Loading">{dots}</h1> : <h1 className="Loading">Erro!</h1>;
+
+        return loading ? <h1 className="Loading" style={{ color: 'darkgray' }}>{dots}</h1> : <h1 className="Loading" style={{ color: 'darkgray' }}>Erro!</h1>;
+    };
+
+    const LoadingCalculos = () => {
+        const [dots, setDots] = useState("");
+
+        useEffect(() => {
+            const interval = setInterval(() => {
+                setDots(prevDots => {
+                    if (prevDots.length < 3) {
+                        return prevDots + ".";
+                    } else {
+                        return "";
+                    }
+                });
+            }, 500);
+
+            return () => clearInterval(interval);
+        }, []);
+
+        return <h1 className="Loading" style={{ color: 'darkgray' }}>Calculando{dots}</h1>; // Mensagem de carregando durante os cálculos
     };
 
     useEffect(() => {
         getMetricas();
     }, []);
 
+    // Resetar resultados ao mudar a métrica
+    useEffect(() => {
+        setExibirCards(false);
+        setTensorDaMetrica(null);
+        setRiemann(null);
+        setRicci(null);
+        setRicciScalar(null);
+        // Resetar os checkboxes quando a métrica é alterada
+        setTensorDaMetricaChecked(false);
+        setRiemannChecked(false);
+        setRicciChecked(false);
+        setRicciScalarChecked(false);
+    }, [metricaSelecionada]);
+
     const getMetricas = () => {
-        setLoading(true)
+        setLoading(true);
         api.get(`${backendUrl}/metricas`)
             .then((response) => {
                 console.log(response.data);
@@ -59,7 +91,7 @@ export default function Tensores() {
             })
             .catch((error) => {
                 console.error(error);
-                setLoading(false)
+                setLoading(false);
             });
     };
 
@@ -84,6 +116,11 @@ export default function Tensores() {
     };
 
     const handleCalcular = () => {
+        setLoadingCalculos(true);
+
+        // Resetar resultados antes de calcular
+        setExibirCards(true); // Exibir cards se houver resultados
+
         const dataTensorDaMetrica = {
             metrica: metricaSelecionada,
             tipo: "tensor",
@@ -92,18 +129,23 @@ export default function Tensores() {
         api.post(`${backendUrl}/tensores`, dataTensorDaMetrica)
             .then((response) => {
                 setTensorDaMetrica(response.data.result);
-                setExibirCards(true);
                 handleRiemann();
                 handleRicci();
                 handleRicciScalar();
             })
             .catch((error) => {
                 console.error(error);
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    setLoadingCalculos(false); // Finalizar loading dos cálculos
+                }, 3500);// Finalizar loading dos cálculos
             });
     };
 
     const handleRiemann = () => {
         if (riemannChecked) {
+            setLoadingCalculos(true);
             const dataRiemann = {
                 metrica: metricaSelecionada,
                 tipo: "riemann",
@@ -115,12 +157,18 @@ export default function Tensores() {
                 })
                 .catch((error) => {
                     console.error(error);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        setLoadingCalculos(false); // Finalizar loading dos cálculos
+                    }, 3500);
                 });
         }
     };
 
     const handleRicci = () => {
         if (ricciChecked) {
+            setLoadingCalculos(true);
             const dataRicci = {
                 metrica: metricaSelecionada,
                 tipo: "ricci",
@@ -132,12 +180,18 @@ export default function Tensores() {
                 })
                 .catch((error) => {
                     console.error(error);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        setLoadingCalculos(false); // Finalizar loading dos cálculos
+                    }, 3500);
                 });
         }
     };
 
     const handleRicciScalar = () => {
         if (ricciScalarChecked) {
+            setLoadingCalculos(true);
             const dataRicciScalar = {
                 metrica: metricaSelecionada,
                 tipo: "ricciScalar",
@@ -149,6 +203,11 @@ export default function Tensores() {
                 })
                 .catch((error) => {
                     console.error(error);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        setLoadingCalculos(false); // Finalizar loading dos cálculos
+                    }, 3600);
                 });
         }
     };
@@ -160,6 +219,11 @@ export default function Tensores() {
         setRicciChecked(false);
         setRicciScalarChecked(false);
         setMetricaSelecionada(metricas[0]?.value || "Schwarzschild");
+        // Resetar resultados ao resetar
+        setTensorDaMetrica(null);
+        setRiemann(null);
+        setRicci(null);
+        setRicciScalar(null);
     };
 
     return (
@@ -222,6 +286,7 @@ export default function Tensores() {
                     <button onClick={handleCalcular}>Calcular</button>
                     <button onClick={handleResetar}>Resetar</button>
                 </div>
+                {loadingCalculos && <LoadingCalculos />}
                 {exibirCards && (
                     <div className="Cards">
                         {tensorDaMetricaChecked && tensorDaMetrica && (
@@ -231,10 +296,16 @@ export default function Tensores() {
                             />
                         )}
                         {riemannChecked && riemann && (
-                            <Card title="Tensor de Riemann" result={riemann} />
+                            <Card
+                                title="Tensor de Riemann"
+                                result={riemann}
+                            />
                         )}
                         {ricciChecked && ricci && (
-                            <Card title="Tensor de Ricci" result={ricci} />
+                            <Card
+                                title="Tensor de Ricci"
+                                result={ricci}
+                            />
                         )}
                         {ricciScalarChecked && ricciScalar && (
                             <Card
