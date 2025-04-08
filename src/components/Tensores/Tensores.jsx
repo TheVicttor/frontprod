@@ -15,11 +15,13 @@ export default function Tensores() {
     const [riemannChecked, setRiemannChecked] = useState(false);
     const [ricciChecked, setRicciChecked] = useState(false);
     const [ricciScalarChecked, setRicciScalarChecked] = useState(false);
+    const [weylChecked, setWeylChecked] = useState(false);
     const [exibirCards, setExibirCards] = useState(false);
     const [tensorDaMetrica, setTensorDaMetrica] = useState(null);
     const [riemann, setRiemann] = useState(null);
     const [ricci, setRicci] = useState(null);
     const [ricciScalar, setRicciScalar] = useState(null);
+    const [weylTensor, setWeylTensor] = useState(null);
     const [metricaSelecionada, setMetricaSelecionada] = useState("Schwarzschild");
     const [loading, setLoading] = useState(true);
     const [loadingCalculos, setLoadingCalculos] = useState(false);
@@ -75,11 +77,13 @@ export default function Tensores() {
         setRiemann(null);
         setRicci(null);
         setRicciScalar(null);
+        setWeylTensor(null);
         // Resetar os checkboxes quando a métrica é alterada
         setTensorDaMetricaChecked(false);
         setRiemannChecked(false);
         setRicciChecked(false);
         setRicciScalarChecked(false);
+        setWeylChecked(false);
     }, [metricaSelecionada]);
 
     const getMetricas = () => {
@@ -115,6 +119,10 @@ export default function Tensores() {
         setRicciScalarChecked(event.target.checked);
     };
 
+    const handleWeylChange = (event) => {
+        setWeylChecked(event.target.checked);
+    };
+
     const handleCalcular = () => {
         setLoadingCalculos(true);
 
@@ -132,6 +140,7 @@ export default function Tensores() {
                 handleRiemann();
                 handleRicci();
                 handleRicciScalar();
+                handleWeyl();
             })
             .catch((error) => {
                 console.error(error);
@@ -212,18 +221,43 @@ export default function Tensores() {
         }
     };
 
+    const handleWeyl = () => {
+        if (weylChecked) {
+            setLoadingCalculos(true);
+            const dataWeyl = {
+                metrica: metricaSelecionada,
+                tipo: "weylTensor",
+            };
+
+            api.post(`${backendUrl}/tensores`, dataWeyl)
+                .then((response) => {
+                    setWeylTensor(response.data.result);
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        setLoadingCalculos(false); // Finalizar loading dos cálculos
+                    }, 3600);
+                });
+        }
+    };
+
     const handleResetar = () => {
         setExibirCards(false);
         setTensorDaMetricaChecked(false);
         setRiemannChecked(false);
         setRicciChecked(false);
         setRicciScalarChecked(false);
+        setWeylChecked(false);
         setMetricaSelecionada(metricas[0]?.value || "Schwarzschild");
         // Resetar resultados ao resetar
         setTensorDaMetrica(null);
         setRiemann(null);
         setRicci(null);
         setRicciScalar(null);
+        setWeylTensor(null);
     };
 
     return (
@@ -280,6 +314,16 @@ export default function Tensores() {
                                 Escalar de Ricci
                             </label>
                         </div>
+                        <div>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={weylChecked}
+                                    onChange={handleWeylChange}
+                                />
+                                Tensor de Weyl
+                            </label>
+                        </div>
                     </div>
                 </fieldset>
                 <div className="Botoes">
@@ -311,6 +355,13 @@ export default function Tensores() {
                             <Card
                                 title="Escalar de Ricci"
                                 result={ricciScalar}
+                            />
+                        )}
+
+                        {weylChecked && weylTensor && (
+                            <Card
+                                title="Tensor de Weyl"
+                                result={weylTensor}
                             />
                         )}
                     </div>
