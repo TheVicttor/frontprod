@@ -16,12 +16,14 @@ export default function Tensores() {
     const [ricciChecked, setRicciChecked] = useState(false);
     const [ricciScalarChecked, setRicciScalarChecked] = useState(false);
     const [weylChecked, setWeylChecked] = useState(false);
+    const [kretChecked, setKretChecked] = useState(false);
     const [exibirCards, setExibirCards] = useState(false);
     const [tensorDaMetrica, setTensorDaMetrica] = useState(null);
     const [riemann, setRiemann] = useState(null);
     const [ricci, setRicci] = useState(null);
     const [ricciScalar, setRicciScalar] = useState(null);
     const [weylTensor, setWeylTensor] = useState(null);
+    const [kretScalar, setKretScalar] = useState(null);
     const [metricaSelecionada, setMetricaSelecionada] = useState("Schwarzschild");
     const [loading, setLoading] = useState(true);
     const [loadingCalculos, setLoadingCalculos] = useState(false);
@@ -78,12 +80,14 @@ export default function Tensores() {
         setRicci(null);
         setRicciScalar(null);
         setWeylTensor(null);
+        setKretScalar(null);
         // Resetar os checkboxes quando a métrica é alterada
         setTensorDaMetricaChecked(false);
         setRiemannChecked(false);
         setRicciChecked(false);
         setRicciScalarChecked(false);
         setWeylChecked(false);
+        setKretChecked(false);
     }, [metricaSelecionada]);
 
     const getMetricas = () => {
@@ -123,6 +127,10 @@ export default function Tensores() {
         setWeylChecked(event.target.checked);
     };
 
+    const handleKretChange = (event) => {
+        setKretChecked(event.target.checked);
+    };
+
     const handleCalcular = () => {
         setLoadingCalculos(true);
 
@@ -141,6 +149,7 @@ export default function Tensores() {
                 handleRicci();
                 handleRicciScalar();
                 handleWeyl();
+                handleKret();
             })
             .catch((error) => {
                 console.error(error);
@@ -244,6 +253,29 @@ export default function Tensores() {
         }
     };
 
+    const handleKret = () => {
+        if (kretChecked) {
+            setLoadingCalculos(true);
+            const dataKret = {
+                metrica: metricaSelecionada,
+                tipo: "kretschmann",
+            };
+
+            api.post(`${backendUrl}/tensores`, dataKret)
+                .then((response) => {
+                    setKretScalar(response.data.result);
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        setLoadingCalculos(false); // Finalizar loading dos cálculos
+                    }, 3600);
+                });
+        }
+    };
+
     const handleResetar = () => {
         setExibirCards(false);
         setTensorDaMetricaChecked(false);
@@ -251,6 +283,7 @@ export default function Tensores() {
         setRicciChecked(false);
         setRicciScalarChecked(false);
         setWeylChecked(false);
+        setKretChecked(false);
         setMetricaSelecionada(metricas[0]?.value || "Schwarzschild");
         // Resetar resultados ao resetar
         setTensorDaMetrica(null);
@@ -258,6 +291,7 @@ export default function Tensores() {
         setRicci(null);
         setRicciScalar(null);
         setWeylTensor(null);
+        setKretScalar(null);
     };
 
     return (
@@ -324,6 +358,16 @@ export default function Tensores() {
                                 Tensor de Weyl
                             </label>
                         </div>
+                        <div>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={kretChecked}
+                                    onChange={handleKretChange}
+                                />
+                                Escalar de Kretschmann
+                            </label>
+                        </div>
                     </div>
                 </fieldset>
                 <div className="Botoes">
@@ -362,6 +406,13 @@ export default function Tensores() {
                             <Card
                                 title="Tensor de Weyl"
                                 result={weylTensor}
+                            />
+                        )}
+
+                        {kretChecked && kretScalar && (
+                            <Card
+                                title="Escalar de Kretschmann"
+                                result={kretScalar}
                             />
                         )}
                     </div>
